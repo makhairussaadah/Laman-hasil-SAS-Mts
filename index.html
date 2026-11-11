@@ -25,11 +25,28 @@
             max-width: 900px;
             width: 100%;
             margin: 0 auto 2rem auto;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
             box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15);
         }
-        header h1 { color: #4f46e5; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
-        header p { color: #64748b; font-size: 0.85rem; font-weight: 600; }
+        header h1 { color: #4f46e5; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; }
+        header p { color: #64748b; font-size: 0.8rem; font-weight: 600; }
+
+        .btn-config {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-config:hover { background: #e2e8f0; }
 
         main { 
             flex-grow: 1; 
@@ -62,7 +79,7 @@
         @media(max-width: 600px) { .filter-grid { grid-template-columns: 1fr; } }
 
         label { display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem; }
-        select { 
+        select, input { 
             width: 100%; 
             background: #f8fafc; 
             border: 2px solid #e2e8f0; 
@@ -72,9 +89,8 @@
             font-weight: 600;
             color: #1e293b; 
             outline: none; 
-            cursor: pointer;
         }
-        select:focus { border-color: #4f46e5; background: #fff; }
+        select:focus, input:focus { border-color: #4f46e5; background: #fff; }
 
         .table-container { max-height: 450px; overflow-y: auto; border-radius: 1rem; border: 1px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
@@ -98,29 +114,24 @@
         tr:nth-child(2) .rank-badge { background: #e2e8f0; color: #334155; }
         tr:nth-child(3) .rank-badge { background: #ffedd5; color: #9a3412; }
 
-        .score-good {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 0.3rem 0.8rem;
-            border-radius: 2rem;
-            font-weight: 800;
-            font-size: 0.85rem;
-        }
-        .score-bad {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 0.3rem 0.8rem;
-            border-radius: 2rem;
-            font-weight: 800;
-            font-size: 0.85rem;
-        }
+        .score-good { background: #d1fae5; color: #065f46; padding: 0.3rem 0.8rem; border-radius: 2rem; font-weight: 800; font-size: 0.85rem; }
+        .score-bad { background: #fee2e2; color: #991b1b; padding: 0.3rem 0.8rem; border-radius: 2rem; font-weight: 800; font-size: 0.85rem; }
+
+        .btn-gradient { background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%); color: white; border: none; border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; width: 100%; margin-top: 1rem; }
+        
+        #configModal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 50; }
+        #configModal.active { display: flex; }
+        .modal-box { background: white; border-radius: 1.25rem; padding: 2rem; max-width: 420px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>✨ Portal Hasil Ujian MTs Khairussa'adah</h1>
-        <p>Pilih mata pelajaran dan kelas untuk melihat peringkat rekapitulasi nilai siswa</p>
+        <div>
+            <h1>✨ Portal Hasil Ujian MTs Khairussa'adah</h1>
+            <p>Pilih mata pelajaran dan kelas untuk melihat peringkat rekapitulasi nilai</p>
+        </div>
+        <button class="btn-config" onclick="openConfigModal()">⚙️ Input Nilai Guru</button>
     </header>
 
     <main>
@@ -172,12 +183,42 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboardBody">
-                        <!-- Data terisi otomatis -->
+                        <tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 2rem;">Memuat data dari Google Sheets...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
+
+    <!-- Modal Input Nilai Guru -->
+    <div id="configModal">
+        <div class="modal-box">
+            <h3 style="margin-bottom: 0.5rem; font-weight: 800;">👩‍🏫 Form Input Nilai Guru</h3>
+            <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem;">Masukkan data nilai siswa langsung ke database Google Sheets.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div>
+                    <label>Pilih Siswa:</label>
+                    <select id="inputSiswa">
+                        <!-- Otomatis dari list 46 siswa -->
+                    </select>
+                </div>
+                <div>
+                    <label>Mata Pelajaran:</label>
+                    <select id="inputMapel">
+                        <!-- Diisi mapel yang sama -->
+                    </select>
+                </div>
+                <div>
+                    <label>Nilai Ujian (0-100):</label>
+                    <input type="number" id="inputNilai" placeholder="Contoh: 85" min="0" max="100">
+                </div>
+            </div>
+
+            <button class="btn-gradient" onclick="submitNilai()">Simpan ke Google Sheets ✨</button>
+            <button class="btn-config" style="width: 100%; margin-top: 0.5rem;" onclick="closeConfigModal()">Tutup</button>
+        </div>
+    </div>
 
     <script>
         const listMapel = [
@@ -235,17 +276,67 @@
             { no: "26-14-14-2-0029-0046", nama: "SARIL YAN SYAPUTRRA", kelas: "IX", ruang: "Ruang 3" }
         ];
 
-        let masterData = {};
-        studentNames.forEach((s, idx) => {
-            masterData[s.no] = { ...s, nilai: {} };
-            listMapel.forEach((m, mIdx) => {
-                masterData[s.no].nilai[m] = 60 + ((s.nama.length * 3 + idx + mIdx * 7) % 39);
-            });
-        });
+        // Ganti dengan URL Web App Google Apps Script Anda yang baru dibuat
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwLxXaeMy3S5zzuRyl4LrrL63JffKc6N79gQI2ISIclV_3r5YJOsX4h7r1G70WkH6WJUw/exec";
+
+        let serverData = [];
 
         window.addEventListener('DOMContentLoaded', () => {
-            renderLeaderboard();
+            populateDropdowns();
+            fetchData();
         });
+
+        function populateDropdowns() {
+            const selSiswa = document.getElementById('inputSiswa');
+            studentNames.forEach(s => {
+                let opt = document.createElement('option');
+                opt.value = s.no;
+                opt.textContent = `${s.nama} (${s.kelas} - ${s.ruang})`;
+                selSiswa.appendChild(opt);
+            });
+
+            const selMapel = document.getElementById('inputMapel');
+            listMapel.forEach(m => {
+                let opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                selMapel.appendChild(opt);
+            });
+        }
+
+        async function fetchData() {
+            if(!GAS_URL || GAS_URL.includes("MASUKKAN_URL")) {
+                // Jika URL belum diset, pakai data simulasi sementara agar web tidak kosong
+                loadSimulationData();
+                return;
+            }
+
+            try {
+                let res = await fetch(GAS_URL);
+                serverData = await res.json();
+                renderLeaderboard();
+            } catch (err) {
+                console.error("Gagal ambil data:", err);
+                loadSimulationData();
+            }
+        }
+
+        function loadSimulationData() {
+            serverData = [];
+            studentNames.forEach((s, idx) => {
+                listMapel.forEach((m, mIdx) => {
+                    serverData.push({
+                        noUjian: s.no,
+                        nama: s.nama,
+                        kelas: s.kelas,
+                        ruang: s.ruang,
+                        mapel: m,
+                        nilai: 60 + ((s.nama.length * 3 + idx + mIdx * 7) % 39)
+                    });
+                });
+            });
+            renderLeaderboard();
+        }
 
         function renderLeaderboard() {
             const selectedMapel = document.getElementById('selectMapel').value;
@@ -253,34 +344,78 @@
             const tbody = document.getElementById('leaderboardBody');
             tbody.innerHTML = '';
 
-            let filteredStudents = Object.values(masterData).filter(s => s.kelas === selectedKelas);
+            // Filter berdasarkan kelas dan mapel yang dipilih
+            let filtered = serverData.filter(item => item.kelas === selectedKelas && item.mapel === selectedMapel);
 
-            filteredStudents.sort((a, b) => {
-                let valA = a.nilai[selectedMapel] || 0;
-                let valB = b.nilai[selectedMapel] || 0;
-                return valB - valA;
-            });
+            // Urutkan dari nilai tertinggi ke terendah
+            filtered.sort((a, b) => b.nilai - a.nilai);
 
-            if(filteredStudents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 2rem;">Tidak ada data siswa untuk kelas ini.</td></tr>`;
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 2rem;">Belum ada data nilai untuk kelas dan mapel ini.</td></tr>`;
                 return;
             }
 
-            filteredStudents.forEach((s, index) => {
-                let score = s.nilai[selectedMapel] || 0;
-                let scoreClass = score < 75 ? 'score-bad' : 'score-good';
+            filtered.forEach((item, index) => {
+                let scoreClass = item.nilai < 75 ? 'score-bad' : 'score-good';
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="text-align: center;"><span class="rank-badge">${index + 1}</span></td>
-                    <td style="font-family: monospace; color: #4f46e5; font-weight: 700;">${s.no}</td>
-                    <td style="font-weight: 700; color: #1e293b;">${s.nama}</td>
-                    <td><span style="background: #f1f5f9; padding: 0.2rem 0.6rem; border-radius: 0.4rem; font-size: 0.8rem; color: #475569;">${s.ruang}</span></td>
-                    <td style="text-align: right;"><span class="${scoreClass}">${score}</span></td>
+                    <td style="font-family: monospace; color: #4f46e5; font-weight: 700;">${item.noUjian}</td>
+                    <td style="font-weight: 700; color: #1e293b;">${item.nama}</td>
+                    <td><span style="background: #f1f5f9; padding: 0.2rem 0.6rem; border-radius: 0.4rem; font-size: 0.8rem; color: #475569;">${item.ruang}</span></td>
+                    <td style="text-align: right;"><span class="${scoreClass}">${item.nilai}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
+
+        async function submitNilai() {
+            const noUjian = document.getElementById('inputSiswa').value;
+            const mapel = document.getElementById('inputMapel').value;
+            const nilai = Number(document.getElementById('inputNilai').value);
+
+            let selectedStudent = studentNames.find(s => s.no === noUjian);
+
+            if(!document.getElementById('inputNilai').value) {
+                alert("Masukkan angka nilai terlebih dahulu!");
+                return;
+            }
+
+            if(!GAS_URL || GAS_URL.includes("MASUKKAN_URL")) {
+                alert("URL Google Apps Script belum dimasukkan di dalam kode file index.html!");
+                return;
+            }
+
+            let payload = {
+                noUjian: selectedStudent.no,
+                nama: selectedStudent.nama,
+                kelas: selectedStudent.kelas,
+                ruang: selectedStudent.ruang,
+                mapel: mapel,
+                nilai: nilai
+            };
+
+            alert("Menyimpan nilai ke Google Sheets...");
+
+            try {
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                alert("Nilai berhasil disimpan!");
+                document.getElementById('inputNilai').value = '';
+                closeConfigModal();
+                setTimeout(fetchData, 1500); // Refresh data tabel
+            } catch (err) {
+                alert("Gagal menyimpan: " + err);
+            }
+        }
+
+        function openConfigModal() { document.getElementById('configModal').classList.add('active'); }
+        function closeConfigModal() { document.getElementById('configModal').classList.remove('active'); }
     </script>
 </body>
 </html>
