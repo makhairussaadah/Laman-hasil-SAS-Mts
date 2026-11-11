@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Hasil Ujian - MTs Khairussa'adah Kubu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 50%, #10b981 100%);
+            background-attachment: fixed;
+            color: #1e293b; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            padding: 1rem;
+        }
+        header { 
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 1.25rem 2rem; 
+            border-radius: 1rem;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto 1.5rem auto;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 1rem; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .school-title h1 { color: #4f46e5; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; }
+        .school-title p { color: #64748b; font-size: 0.8rem; font-weight: 600; }
+        
+        .role-tabs {
+            display: flex;
+            background: #f1f5f9;
+            padding: 0.35rem;
+            border-radius: 0.75rem;
+            gap: 0.35rem;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #64748b;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        main { 
+            flex-grow: 1; 
+            max-width: 1000px; 
+            width: 100%; 
+            margin: 0 auto; 
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 1.25rem; 
+            padding: 2rem; 
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-view { display: none; }
+        .section-view.active { display: block; }
+
+        h2 { font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        p.desc { font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; }
+        input, select { 
+            width: 100%; 
+            background: #f8fafc; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 0.75rem; 
+            padding: 0.75rem 1rem; 
+            font-size: 0.95rem; 
+            font-weight: 600;
+            color: #1e293b; 
+            outline: none; 
+            transition: all 0.3s;
+        }
+        input:focus, select:focus { border-color: #4f46e5; background: #fff; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+
+        .btn-gradient { 
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            color: white; 
+            border: none; 
+            border-radius: 0.75rem; 
+            padding: 0.85rem 1.5rem; 
+            font-size: 0.95rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.4);
+        }
+        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -4px rgba(79, 70, 229, 0.6); }
+
+        /* Hasil Siswa Card */
+        #studentResultBox {
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 2px solid #34d399;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: none;
+        }
+        .grades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        .grade-item {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #a7f3d0;
+        }
+        .grade-item span { display: block; font-size: 0.7rem; font-weight: 700; color: #059669; text-transform: uppercase; }
+        .grade-item b { font-size: 0.95rem; font-weight: 800; color: #065f46; }
+
+        /* Guru Table */
+        .table-container { max-height: 400px; overflow-y: auto; border-radius: 0.75rem; border: 1px solid #e2e8f0; margin-top: 1rem; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+        th { background: #f8fafc; color: #475569; padding: 0.85rem; font-weight: 800; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+        td { padding: 0.85rem; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #334155; }
+        tr:hover { background: #f8fafc; }
+
+        .badge-score {
+            background: #ede9fe;
+            color: #6d28d9;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-weight: 800;
+            font-size: 0.85rem;
+        }
+
+        .config-link { text-align: center; margin-top: 1rem; }
+        .config-link a { color: white; font-size: 0.8rem; font-weight: 700; text-decoration: underline; cursor: pointer; opacity: 0.9; }
+        .config-link a:hover { opacity: 1; }
+
+        /* Modal Config GAS */
+        #configModal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 50; }
+        #configModal.active { display: flex; }
+        .modal-box { background: white; border-radius: 1.25rem; padding: 2rem; max-width: 420px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .modal-box h3 { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem; }
+        .modal-box p { font-size: 0.8rem; color: #64748b; margin-bottom: 1.25rem; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem; }
+        .btn-secondary { background: #e2e8f0; color: #475569; border: none; border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="school-title">
+            <h1>✨ Portal Akademik MTs Khairussa'adah</h1>
+            <p>Sistem Pengecekan Hasil Asesmen Sumatif Akhir Semester</p>
+        </div>
+        <div class="role-tabs">
+            <button class="tab-btn active" onclick="switchTab('student')">👨‍🎓 Siswa</button>
+            <button class="tab-btn" onclick="switchTab('teacher')">👩‍🏫 Guru Mapel</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- VIEW SISWA -->
+        <div id="studentView" class="card section-view active">
+            <h2>🔍 Cek Hasil Ujian Mandiri</h2>
+            <p class="desc">Masukkan Nomor Ujian Anda untuk melihat rekapitulasi nilai seluruh mata pelajaran secara instan.</p>
+            
+            <div class="form-group">
+                <label>Nomor Ujian Peserta:</label>
+                <input type="text" id="checkNoUjian" placeholder="Contoh: 26-14-14-2-0029-2-1">
+            </div>
+            <button class="btn-gradient" onclick="checkStudentResult()">Cek Nilai Sekarang 🚀</button>
+
+            <div id="studentResultBox">
+                <h3 style="color: #065f46; font-size: 1.1rem; font-weight: 800; margin-bottom: 0.25rem;" id="resNama">Nama Siswa</h3>
+                <p style="font-size: 0.85rem; color: #047857; font-weight: 600;" id="resInfo">Kelas: - | Ruang: -</p>
+                <div class="grades-grid" id="resGradesContainer">
+                    <!-- Nilai mapel dimasukkan dinamis -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW GURU -->
+        <div id="teacherView" class="card section-view">
+            <h2>📊 Dashboard Rekapitulasi Guru</h2>
+            <p class="desc">Filter berdasarkan mata pelajaran dan ruangan untuk memantau rekap nilai siswa secara live.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="form-group">
+                <div>
+                    <label>Pilih Mata Pelajaran:</label>
+                    <select id="filterMapel" onchange="filterTeacherData()">
+                        <option value="Semua">Semua Mata Pelajaran</option>
+                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                        <option value="Bahasa Inggris">Bahasa Inggris</option>
+                        <option value="Bahasa Arab">Bahasa Arab</option>
+                        <option value="Muatan Lokal">Muatan Lokal</option>
+                        <option value="SKI">SKI</option>
+                        <option value="Fikih">Fikih</option>
+                        <option value="Akidah Akhlak">Akidah Akhlak</option>
+                        <option value="Qur'an Hadist">Qur'an Hadist</option>
+                        <option value="Sosiologi">Sosiologi</option>
+                        <option value="PKN">PKN</option>
+                        <option value="IPS">IPS</option>
+                        <option value="IPA">IPA</option>
+                        <option value="Matematika">Matematika</option>
+                        <option value="Informatika">Informatika</option>
+                        <option value="Seni Budaya">Seni Budaya</option>
+                        <option value="PJOK">PJOK</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Pilih Ruangan:</label>
+                    <select id="filterRuang" onchange="filterTeacherData()">
+                        <option value="Semua">Semua Ruangan</option>
+                        <option value="Ruang 1">Ruang 1</option>
+                        <option value="Ruang 2">Ruang 2</option>
+                        <option value="Ruang 3">Ruang 3</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No. Ujian</th>
+                            <th>Nama Siswa</th>
+                            <th>Kelas</th>
+                            <th>Ruang</th>
+                            <th>Mata Pelajaran</th>
+                            <th>Nilai</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacherTableBody">
+                        <!-- Data terisi dinamis -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="config-link">
+            <a onclick="openConfigModal()">⚙️ Atur Koneksi Google Apps Script (GAS) Web App URL</a>
+        </div>
+    </main>
+
+    <!-- Modal Konfigurasi GAS -->
+    <div id="configModal">
+        <div class="modal-box">
+            <h3>Konfigurasi Endpoint Google Apps Script</h3>
+            <p>Hubungkan laman ini ke Google Sheets database nilai siswa Anda melalui URL Web App GAS.</p>
+            <label>Web App URL:</label>
+            <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeConfigModal()">Batal</button>
+                <button class="btn-gradient" style="width: auto; padding: 0.75rem 1.25rem;" onclick="saveConfig()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Daftar Mata Pelajaran Lengkap
+        const listMapel = [
+            "Bahasa Indonesia", "Bahasa Inggris", "Bahasa Arab", "Muatan Lokal", 
+            "SKI", "Fikih", "Akidah Akhlak", "Qur'an Hadist", "Sosiologi", 
+            "PKN", "IPS", "IPA", "Matematika", "Informatika", "Seni Budaya", "PJOK"
+        ];
+
+        // Database 46 Siswa lengkap dengan nilai random otomatis untuk simulasi
+        const studentNames = [
+            { no: "26-14-14-2-0029-2-1", nama: "HAIRANI FITRI", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-2", nama: "ERLANGGA DIRGA RINTINAR", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-3", nama: "NUR QAMARIANA SUFITRI", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-4", nama: "SYAFRI ZAKARIA AL MALIK", kelas: "VII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-5", nama: "RADITTIYA SAPUTRA", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-6", nama: "SIVA RAMA DINI", kelas: "VII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-7", nama: "FAREL", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-8", nama: "AKHSAN SASTRO UTOMO", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-9", nama: "MAULANA HIDAYAT", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-10", nama: "DIMAS YUSUF", kelas: "VII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-11", nama: "MUHAMMAD YOGI", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-12", nama: "FILLAH AYU AZZAHRA", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-13", nama: "AZKADITYA PRIHASTAMA", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-14", nama: "SITI KHOYRIAH", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-15", nama: "AFIKA ROSIDAH", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-16", nama: "LILI", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-2-17", nama: "MUHAMMAD HAFIS ALBARY", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-18", nama: "RIAN HAIKAL", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-19", nama: "SABILLAH ELGIANOVA", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-20", nama: "MIFTAHUN NUR REZA IBNU KHOLIFAH", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-21", nama: "ULFA DWI WARDANI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-22", nama: "PARAS PUTRI SAPTYANI", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-23", nama: "INDAH SULISTYOWATI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-24", nama: "AZKA FUADY", kelas: "VII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-25", nama: "KEYZA ELISA PUTRI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-26", nama: "HENGKY HIDAYAT", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-27", nama: "BILQIS AIDIL AZAHARI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-28", nama: "FEBRIANA LARASATI", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-29", nama: "NOVAL SYAHRUL FAZRIE", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-30", nama: "EGI SAFKI PRATAMA", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-31", nama: "SINTIA FEBRIANI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-32", nama: "DESKY DASKIA", kelas: "VII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-2-33", nama: "SYARIFAH SABILA ASYAILA", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-34", nama: "KHAIRUL HUDA AL AZAM", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-35", nama: "MUHAMMAD RAIHANSYAH", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-36", nama: "MUHAMMAD EGA RAMADHAN", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-37", nama: "SYARIFAH ALIA ZAFIRA", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-38", nama: "NOVA OKTA MITTA", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-39", nama: "DELA ASTUTI", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-40", nama: "ELSA VERNANDA", kelas: "VIII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-41", nama: "MEISYA ROSANTI", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-42", nama: "FATHIR AZMI", kelas: "VIII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-43", nama: "GENTA ADIWIJAYA", kelas: "VIII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-44", nama: "DEA KHALIFAH", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-45", nama: "MUHAMMAD FACHRY SUDRAJAD", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-2-46", nama: "SARIL YAN SYAPUTRRA", kelas: "IX", ruang: "Ruang 3" }
+        ];
+
+        // Generate nilai otomatis konsisten berdasarkan nomor ujian
+        const fullDatabase = {};
+        studentNames.forEach((s, index) => {
+            let grades = {};
+            listMapel.forEach((m, mIndex) => {
+                // Buat variasi nilai berkisar antara 78 sampai 95 berdasarkan panjang nama & indeks
+                grades[m] = 78 + ((s.nama.length + index + mIndex) % 18);
+            });
+            fullDatabase[s.no] = { ...s, nilai: grades };
+        });
+
+        let gasUrl = localStorage.getItem('portal_gas_url') || '';
+
+        function switchTab(role) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.section-view').forEach(view => view.classList.remove('active'));
+
+            if(role === 'student') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('studentView').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('teacherView').classList.add('active');
+                loadTeacherTable();
+            }
+        }
+
+        function checkStudentResult() {
+            const noUjian = document.getElementById('checkNoUjian').value.trim();
+            const box = document.getElementById('studentResultBox');
+
+            if(!noUjian) {
+                alert("Silakan masukkan Nomor Ujian terlebih dahulu!");
+                return;
+            }
+
+            const student = fullDatabase[noUjian];
+            if(!student) {
+                alert("Nomor ujian tidak ditemukan dalam database sumatif!");
+                box.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('resNama').innerText = student.nama;
+            document.getElementById('resInfo').innerText = `Kelas: ${student.kelas} | Ruang: ${student.ruang} | No: ${noUjian}`;
+            
+            const container = document.getElementById('resGradesContainer');
+            container.innerHTML = '';
+
+            listMapel.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'grade-item';
+                item.innerHTML = `
+                    <span>${m}</span>
+                    <b>${student.nilai[m]} / Tuntas</b>
+                `;
+                container.appendChild(item);
+            });
+
+            box.style.display = 'block';
+        }
+
+        function loadTeacherTable() {
+            const tbody = document.getElementById('teacherTableBody');
+            const filterM = document.getElementById('filterMapel').value;
+            const filterR = document.getElementById('filterRuang').value;
+            tbody.innerHTML = '';
+
+            Object.keys(fullDatabase).forEach(noUjian => {
+                const s = fullDatabase[noUjian];
+                
+                listMapel.forEach(m => {
+                    if(filterM === 'Semua' || filterM === m) {
+                        if(filterR === 'Semua' || s.ruang === filterR) {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td style="font-family: monospace; color: #4f46e5;">${noUjian}</td>
+                                <td style="font-weight: 700;">${s.nama}</td>
+                                <td>${s.kelas}</td>
+                                <td>${s.ruang}</td>
+                                <td><span style="font-weight: 700; color: #0284c7;">${m}</span></td>
+                                <td><span class="badge-score">${s.nilai[m]}</span></td>
+                            `;
+                            tbody.appendChild(tr);
+                        }
+                    }
+                });
+            });
+        }
+
+        function filterTeacherData() {
+            loadTeacherTable();
+        }
+
+        function openConfigModal() {
+            document.getElementById('gasUrlInput').value = gasUrl;
+            document.getElementById('configModal').classList.add('active');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('active');
+        }
+
+        function saveConfig() {
+            gasUrl = document.getElementById('gasUrlInput').value.trim();
+            localStorage.setItem('portal_gas_url', gasUrl);
+            closeConfigModal();
+            alert("URL Google Apps Script berhasil disimpan!");
+        }
+    </script>
+</body>
+</html>
