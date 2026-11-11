@@ -68,4 +68,219 @@
             border: 2px solid #e2e8f0; 
             border-radius: 0.75rem; 
             padding: 0.75rem 1rem; 
-            font-size: 0.9
+            font-size: 0.9rem; 
+            font-weight: 600;
+            color: #1e293b; 
+            outline: none; 
+            cursor: pointer;
+        }
+        select:focus { border-color: #4f46e5; background: #fff; }
+
+        .table-container { max-height: 450px; overflow-y: auto; border-radius: 1rem; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+        th { background: #f8fafc; color: #475569; padding: 1rem; font-weight: 800; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+        td { padding: 0.9rem 1rem; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #334155; }
+        tr:hover { background: #f8fafc; }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #475569;
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+        tr:nth-child(1) .rank-badge { background: #fef08a; color: #854d0e; }
+        tr:nth-child(2) .rank-badge { background: #e2e8f0; color: #334155; }
+        tr:nth-child(3) .rank-badge { background: #ffedd5; color: #9a3412; }
+
+        .score-good {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-weight: 800;
+            font-size: 0.85rem;
+        }
+        .score-bad {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-weight: 800;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>✨ Portal Hasil Ujian MTs Khairussa'adah</h1>
+        <p>Pilih mata pelajaran dan kelas untuk melihat peringkat rekapitulasi nilai siswa</p>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>🏆 Peringkat & Rekapitulasi Nilai Per Kelas</h2>
+            <p class="desc">Nilai diurutkan otomatis dari yang tertinggi ke terendah. Nilai di bawah 75 ditandai dengan label merah.</p>
+            
+            <div class="filter-grid">
+                <div>
+                    <label>📚 Pilih Mata Pelajaran:</label>
+                    <select id="selectMapel" onchange="renderLeaderboard()">
+                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                        <option value="Bahasa Inggris">Bahasa Inggris</option>
+                        <option value="Bahasa Arab">Bahasa Arab</option>
+                        <option value="Muatan Lokal">Muatan Lokal</option>
+                        <option value="SKI">SKI</option>
+                        <option value="Fikih">Fikih</option>
+                        <option value="Akidah Akhlak">Akidah Akhlak</option>
+                        <option value="Qur'an Hadist">Qur'an Hadist</option>
+                        <option value="Sosiologi">Sosiologi</option>
+                        <option value="PKN">PKN</option>
+                        <option value="IPS">IPS</option>
+                        <option value="IPA">IPA</option>
+                        <option value="Matematika">Matematika</option>
+                        <option value="Informatika">Informatika</option>
+                        <option value="Seni Budaya">Seni Budaya</option>
+                        <option value="PJOK">PJOK</option>
+                    </select>
+                </div>
+                <div>
+                    <label>🏫 Pilih Kelas:</label>
+                    <select id="selectKelas" onchange="renderLeaderboard()">
+                        <option value="VII">Kelas VII (Tujuh)</option>
+                        <option value="VIII">Kelas VIII (Delapan)</option>
+                        <option value="IX">Kelas IX (Sembilan)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 70px; text-align: center;">Rank</th>
+                            <th>No. Ujian</th>
+                            <th>Nama Siswa</th>
+                            <th>Ruang</th>
+                            <th style="text-align: right;">Nilai Akhir</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Data terisi otomatis -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const listMapel = [
+            "Bahasa Indonesia", "Bahasa Inggris", "Bahasa Arab", "Muatan Lokal", 
+            "SKI", "Fikih", "Akidah Akhlak", "Qur'an Hadist", "Sosiologi", 
+            "PKN", "IPS", "IPA", "Matematika", "Informatika", "Seni Budaya", "PJOK"
+        ];
+
+        const studentNames = [
+            { no: "26-14-14-2-0029-0001", nama: "HAIRANI FITRI", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0002", nama: "ERLANGGA DIRGA RINTINAR", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0003", nama: "NUR QAMARIANA SUFITRI", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0004", nama: "SYAFRI ZAKARIA AL MALIK", kelas: "VII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0005", nama: "RADITTIYA SAPUTRA", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0006", nama: "SIVA RAMA DINI", kelas: "VII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0007", nama: "FAREL", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0008", nama: "AKHSAN SASTRO UTOMO", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0009", nama: "MAULANA HIDAYAT", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0010", nama: "DIMAS YUSUF", kelas: "VII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0011", nama: "MUHAMMAD YOGI", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0012", nama: "FILLAH AYU AZZAHRA", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0013", nama: "AZKADITYA PRIHASTAMA", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0014", nama: "SITI KHOYRIAH", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0015", nama: "AFIKA ROSIDAH", kelas: "VIII", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0016", nama: "LILI", kelas: "IX", ruang: "Ruang 1" },
+            { no: "26-14-14-2-0029-0017", nama: "MUHAMMAD HAFIS ALBARY", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0018", nama: "RIAN HAIKAL", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0019", nama: "SABILLAH ELGIANOVA", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0020", nama: "MIFTAHUN NUR REZA IBNU KHOLIFAH", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0021", nama: "ULFA DWI WARDANI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0022", nama: "PARAS PUTRI SAPTYANI", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0023", nama: "INDAH SULISTYOWATI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0024", nama: "AZKA FUADY", kelas: "VII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0025", nama: "KEYZA ELISA PUTRI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0026", nama: "HENGKY HIDAYAT", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0027", nama: "BILQIS AIDIL AZAHARI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0028", nama: "FEBRIANA LARASATI", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0029", nama: "NOVAL SYAHRUL FAZRIE", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0030", nama: "EGI SAFKI PRATAMA", kelas: "VIII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0031", nama: "SINTIA FEBRIANI", kelas: "IX", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0032", nama: "DESKY DASKIA", kelas: "VII", ruang: "Ruang 2" },
+            { no: "26-14-14-2-0029-0033", nama: "SYARIFAH SABILA ASYAILA", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0034", nama: "KHAIRUL HUDA AL AZAM", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0035", nama: "MUHAMMAD RAIHANSYAH", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0036", nama: "MUHAMMAD EGA RAMADHAN", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0037", nama: "SYARIFAH ALIA ZAFIRA", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0038", nama: "NOVA OKTA MITTA", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0039", nama: "DELA ASTUTI", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0040", nama: "ELSA VERNANDA", kelas: "VIII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0041", nama: "MEISYA ROSANTI", kelas: "IX", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0042", nama: "FATHIR AZMI", kelas: "VIII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0043", nama: "GENTA ADIWIJAYA", kelas: "VIII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0044", nama: "DEA KHALIFAH", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0045", nama: "MUHAMMAD FACHRY SUDRAJAD", kelas: "VII", ruang: "Ruang 3" },
+            { no: "26-14-14-2-0029-0046", nama: "SARIL YAN SYAPUTRRA", kelas: "IX", ruang: "Ruang 3" }
+        ];
+
+        let masterData = {};
+        studentNames.forEach((s, idx) => {
+            masterData[s.no] = { ...s, nilai: {} };
+            listMapel.forEach((m, mIdx) => {
+                masterData[s.no].nilai[m] = 60 + ((s.nama.length * 3 + idx + mIdx * 7) % 39);
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderLeaderboard();
+        });
+
+        function renderLeaderboard() {
+            const selectedMapel = document.getElementById('selectMapel').value;
+            const selectedKelas = document.getElementById('selectKelas').value;
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+
+            let filteredStudents = Object.values(masterData).filter(s => s.kelas === selectedKelas);
+
+            filteredStudents.sort((a, b) => {
+                let valA = a.nilai[selectedMapel] || 0;
+                let valB = b.nilai[selectedMapel] || 0;
+                return valB - valA;
+            });
+
+            if(filteredStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 2rem;">Tidak ada data siswa untuk kelas ini.</td></tr>`;
+                return;
+            }
+
+            filteredStudents.forEach((s, index) => {
+                let score = s.nilai[selectedMapel] || 0;
+                let scoreClass = score < 75 ? 'score-bad' : 'score-good';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align: center;"><span class="rank-badge">${index + 1}</span></td>
+                    <td style="font-family: monospace; color: #4f46e5; font-weight: 700;">${s.no}</td>
+                    <td style="font-weight: 700; color: #1e293b;">${s.nama}</td>
+                    <td><span style="background: #f1f5f9; padding: 0.2rem 0.6rem; border-radius: 0.4rem; font-size: 0.8rem; color: #475569;">${s.ruang}</span></td>
+                    <td style="text-align: right;"><span class="${scoreClass}">${score}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
